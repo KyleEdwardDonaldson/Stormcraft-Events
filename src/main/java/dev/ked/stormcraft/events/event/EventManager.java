@@ -299,4 +299,13 @@ public class EventManager {
 
         return (int) Math.max(0, (cooldown - elapsed) / 1000);
     }
+
+    // Getters for difficulty system
+    public PlayerDensityTracker getPlayerDensityTracker() {
+        return playerDensityTracker;
+    }
+
+    public DifficultyCalculator getDifficultyCalculator() {
+        return difficultyCalculator;
+    }
 }

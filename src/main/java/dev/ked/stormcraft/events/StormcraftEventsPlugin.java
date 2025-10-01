@@ -6,6 +6,7 @@ import dev.ked.stormcraft.events.config.ConfigManager;
 import dev.ked.stormcraft.events.event.EventManager;
 import dev.ked.stormcraft.events.integration.*;
 import dev.ked.stormcraft.events.spawn.DensityTracker;
+import dev.ked.stormcraft.events.ui.ThreatLevelHUD;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -25,6 +26,7 @@ public class StormcraftEventsPlugin extends JavaPlugin {
     private EventManager eventManager;
     private DensityTracker densityTracker;
     private Economy economy;
+    private ThreatLevelHUD threatLevelHUD;
 
     @Override
     public void onEnable() {
@@ -60,6 +62,15 @@ public class StormcraftEventsPlugin extends JavaPlugin {
         densityTracker.start();
         eventManager.start();
 
+        // Start UI systems
+        if (configManager.isDifficultyEnabled()) {
+            threatLevelHUD = new ThreatLevelHUD(this, configManager, stormcraftIntegration,
+                                               eventManager.getPlayerDensityTracker(),
+                                               eventManager.getDifficultyCalculator());
+            threatLevelHUD.start();
+            getLogger().info("Threat Level HUD enabled");
+        }
+
         // Register commands
         registerCommands();
 
@@ -76,6 +87,9 @@ public class StormcraftEventsPlugin extends JavaPlugin {
         }
         if (densityTracker != null) {
             densityTracker.stop();
+        }
+        if (threatLevelHUD != null) {
+            threatLevelHUD.cancel();
         }
 
         getLogger().info("Stormcraft-Events disabled.");
@@ -140,6 +154,13 @@ public class StormcraftEventsPlugin extends JavaPlugin {
 
     private void registerCommands() {
         StormEventCommand command = new StormEventCommand(this, eventManager, configManager);
+
+        // Wire up difficulty system if enabled
+        if (configManager.isDifficultyEnabled()) {
+            command.setDifficultySystem(eventManager.getPlayerDensityTracker(),
+                                       eventManager.getDifficultyCalculator());
+        }
+
         getCommand("stormevent").setExecutor(command);
         getCommand("stormevent").setTabCompleter(command);
     }

@@ -1,5 +1,7 @@
 package dev.ked.stormcraft.events.ui;
 
+import dev.ked.stormcraft.events.difficulty.DifficultyMultiplier;
+import dev.ked.stormcraft.events.difficulty.ThreatLevel;
 import dev.ked.stormcraft.events.event.Event;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -20,11 +22,22 @@ public class EventNotifier {
     public static void announceSpawn(Event event, List<Player> nearbyPlayers) {
         String eventName = event.getType().getDisplayName();
         Location loc = event.getLocation();
+        DifficultyMultiplier difficulty = event.getDifficulty();
 
         for (Player player : nearbyPlayers) {
-            // Chat message
-            player.sendMessage(Component.text("§6[Storm Event] §fA §b" + eventName +
-                    " §fhas spawned near you! §7(" + getDistance(player, loc) + " blocks away)"));
+            // Chat message with player count
+            int playerCount = nearbyPlayers.size();
+            player.sendMessage(Component.text("§6[Storm Event] §f⚡ §b" + eventName +
+                    " §fdetected - §e" + playerCount + " player" + (playerCount > 1 ? "s" : "") + " nearby!"));
+
+            // Show threat level if difficulty is set
+            if (difficulty != null) {
+                ThreatLevel threatLevel = difficulty.getThreatLevel();
+                String threatMessage = getThreatMessage(threatLevel, difficulty.getMultiplier());
+                player.sendMessage(Component.text(threatMessage));
+            }
+
+            player.sendMessage(Component.text("§7Location: " + getDistance(player, loc) + " blocks away"));
 
             // Title
             player.showTitle(Title.title(
@@ -33,6 +46,22 @@ public class EventNotifier {
                     Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofSeconds(1))
             ));
         }
+    }
+
+    /**
+     * Get a formatted threat level message with rewards hint.
+     */
+    private static String getThreatMessage(ThreatLevel level, double multiplier) {
+        return switch (level) {
+            case LOW -> String.format("§a⚠ Threat Level: %s §7(%.1fx) - Standard rewards",
+                level.getDisplayName(), multiplier);
+            case MEDIUM -> String.format("§e⚠ Threat Level: %s §7(%.1fx) - Increased rewards",
+                level.getDisplayName(), multiplier);
+            case HIGH -> String.format("§6⚠ Threat Level: %s §7(%.1fx) - High rewards!",
+                level.getDisplayName(), multiplier);
+            case EXTREME -> String.format("§c⚠ Threat Level: %s §7(%.1fx) - Massive rewards!",
+                level.getDisplayName(), multiplier);
+        };
     }
 
     /**
