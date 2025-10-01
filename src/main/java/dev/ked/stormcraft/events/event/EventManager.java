@@ -2,6 +2,9 @@ package dev.ked.stormcraft.events.event;
 
 import dev.ked.stormcraft.events.StormcraftEventsPlugin;
 import dev.ked.stormcraft.events.config.ConfigManager;
+import dev.ked.stormcraft.events.difficulty.DifficultyCalculator;
+import dev.ked.stormcraft.events.difficulty.DifficultyMultiplier;
+import dev.ked.stormcraft.events.difficulty.PlayerDensityTracker;
 import dev.ked.stormcraft.events.integration.*;
 import dev.ked.stormcraft.events.spawn.DensityTracker;
 import dev.ked.stormcraft.events.spawn.EventSpawner;
@@ -27,6 +30,8 @@ public class EventManager {
     private final Economy economy;
     private final EventSpawner spawner;
     private final DensityTracker densityTracker;
+    private final PlayerDensityTracker playerDensityTracker;
+    private final DifficultyCalculator difficultyCalculator;
 
     // Active events tracking
     private final Map<UUID, Event> activeEvents = new ConcurrentHashMap<>();
@@ -47,8 +52,34 @@ public class EventManager {
         this.economy = economy;
         this.densityTracker = densityTracker;
 
+        // Initialize difficulty system
+        this.playerDensityTracker = new PlayerDensityTracker(plugin, config.getDifficultyScanRadius());
+        this.difficultyCalculator = new DifficultyCalculator(plugin, playerDensityTracker, stormcraft);
+        loadDifficultyConfig();
+
         this.spawner = new EventSpawner(plugin, config, stormcraft, mythicMobs,
                                        towny, tan, essence, economy, densityTracker);
+    }
+
+    /**
+     * Load difficulty configuration from config.yml.
+     */
+    private void loadDifficultyConfig() {
+        if (!config.isDifficultyEnabled()) {
+            plugin.getLogger().info("Difficulty scaling disabled in config");
+            return;
+        }
+
+        difficultyCalculator.setPartyBonusPerMember(config.getPartyBonusPerMember());
+        difficultyCalculator.setMaxPartyBonus(config.getMaxPartyBonus());
+        difficultyCalculator.setProximityBonusPerPlayer(config.getProximityBonusPerPlayer());
+        difficultyCalculator.setMaxProximityBonus(config.getMaxProximityBonus());
+        difficultyCalculator.setWildernessBonus(config.getWildernessBonus());
+        difficultyCalculator.setStormProximityBonus(config.getStormProximityBonus());
+        difficultyCalculator.setStormProximityRadius(config.getStormProximityRadius());
+        difficultyCalculator.setTownClaimMultiplier(config.getTownClaimMultiplier());
+
+        plugin.getLogger().info("Difficulty system initialized");
     }
 
     /**
@@ -98,8 +129,29 @@ public class EventManager {
             return; // No spawn this check
         }
 
-        // Try to spawn event
-        Event event = spawner.trySpawnEvent(storm);
+        // Calculate difficulty if enabled
+        DifficultyMultiplier difficulty = null;
+        EventType selectedType = null;
+
+        if (config.isDifficultyEnabled()) {
+            // Get nearby players
+            List<Player> nearbyPlayers = playerDensityTracker.getNearbyPlayers(stormCenter);
+
+            if (!nearbyPlayers.isEmpty()) {
+                // Calculate difficulty multiplier
+                difficulty = difficultyCalculator.calculate(stormCenter, nearbyPlayers);
+
+                // Select event type based on difficulty
+                selectedType = difficultyCalculator.selectEventType(difficulty);
+
+                plugin.getLogger().info("Spawning " + selectedType + " with " +
+                        String.format("%.1fx", difficulty.getMultiplier()) + " difficulty (" +
+                        difficulty.getThreatLevel() + ")");
+            }
+        }
+
+        // Try to spawn event (with optional type override and difficulty)
+        Event event = spawner.trySpawnEvent(storm, selectedType, difficulty);
         if (event != null) {
             startEvent(event);
         }

@@ -2,6 +2,7 @@ package dev.ked.stormcraft.events.spawn;
 
 import dev.ked.stormcraft.events.StormcraftEventsPlugin;
 import dev.ked.stormcraft.events.config.ConfigManager;
+import dev.ked.stormcraft.events.difficulty.DifficultyMultiplier;
 import dev.ked.stormcraft.events.event.Event;
 import dev.ked.stormcraft.events.event.EventType;
 import dev.ked.stormcraft.events.event.events.*;
@@ -49,19 +50,37 @@ public class EventSpawner {
      * @return The spawned event, or null if spawn failed
      */
     public Event trySpawnEvent(TravelingStorm storm) {
+        return trySpawnEvent(storm, null, null);
+    }
+
+    /**
+     * Attempt to spawn an event with optional type override and difficulty.
+     * @param storm The storm to spawn near
+     * @param typeOverride Optional event type to spawn (null for weighted random)
+     * @param difficulty Optional difficulty multiplier (null for no scaling)
+     * @return The spawned event, or null if spawn failed
+     */
+    public Event trySpawnEvent(TravelingStorm storm, EventType typeOverride, DifficultyMultiplier difficulty) {
         // Get random spawn zone
         SpawnZone zone = zoneCalculator.getRandomSpawnZone(storm);
         Location spawnLoc = zone.getRandomLocation();
 
-        // Select event type based on weights
-        EventType type = selectEventType(spawnLoc, storm);
+        // Select event type (use override if provided)
+        EventType type = typeOverride != null ? typeOverride : selectEventType(spawnLoc, storm);
         if (type == null) return null;
 
         // Check if event can spawn
         if (!canSpawnEvent(type, spawnLoc, storm)) return null;
 
         // Create event instance
-        return createEvent(type, spawnLoc, storm);
+        Event event = createEvent(type, spawnLoc, storm);
+
+        // Set difficulty if provided
+        if (event != null && difficulty != null) {
+            event.setDifficulty(difficulty);
+        }
+
+        return event;
     }
 
     /**

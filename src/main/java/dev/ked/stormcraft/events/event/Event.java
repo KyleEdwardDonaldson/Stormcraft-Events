@@ -1,5 +1,6 @@
 package dev.ked.stormcraft.events.event;
 
+import dev.ked.stormcraft.events.difficulty.DifficultyMultiplier;
 import dev.ked.stormcraft.events.objectives.Objective;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public abstract class Event {
     protected int durationSeconds;
     protected Set<UUID> participants;
     protected List<Objective> objectives;
+    protected DifficultyMultiplier difficulty;
 
     public Event(EventType type, Location location, int durationSeconds) {
         this.eventId = UUID.randomUUID();
@@ -139,5 +141,20 @@ public abstract class Event {
 
     public long getStartTime() {
         return startTime;
+    }
+
+    public DifficultyMultiplier getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(DifficultyMultiplier difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    /**
+     * Get the difficulty multiplier value, or 1.0 if no difficulty is set.
+     */
+    public double getDifficultyMultiplier() {
+        return difficulty != null ? difficulty.getMultiplier() : 1.0;
     }
 }

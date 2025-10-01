@@ -185,6 +185,47 @@ public class ConfigManager {
         return rewards.getDouble("rewards.bosses.minDamagePercent", 5.0);
     }
 
+    // Difficulty settings
+    public boolean isDifficultyEnabled() {
+        return config.getBoolean("difficulty.enabled", true);
+    }
+
+    public double getDifficultyScanRadius() {
+        return config.getDouble("difficulty.scan_radius", 50.0);
+    }
+
+    public double getPartyBonusPerMember() {
+        return config.getDouble("difficulty.party_bonus_per_member", 0.3);
+    }
+
+    public double getMaxPartyBonus() {
+        return config.getDouble("difficulty.max_party_bonus", 1.5);
+    }
+
+    public double getProximityBonusPerPlayer() {
+        return config.getDouble("difficulty.proximity_bonus_per_player", 0.2);
+    }
+
+    public double getMaxProximityBonus() {
+        return config.getDouble("difficulty.max_proximity_bonus", 1.0);
+    }
+
+    public double getWildernessBonus() {
+        return config.getDouble("difficulty.wilderness_bonus", 0.5);
+    }
+
+    public double getStormProximityBonus() {
+        return config.getDouble("difficulty.storm_proximity_bonus", 0.5);
+    }
+
+    public double getStormProximityRadius() {
+        return config.getDouble("difficulty.storm_proximity_radius", 300.0);
+    }
+
+    public double getTownClaimMultiplier() {
+        return config.getDouble("difficulty.town_claim_multiplier", 0.5);
+    }
+
     /**
      * Get raw config for direct access.
      */

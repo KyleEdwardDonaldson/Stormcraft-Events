@@ -31,6 +31,61 @@ events:
     playerMultiplier: 0.1         # Additional chance per player (logarithmic)
     maxChance: 0.5                # Max 50% spawn chance
 
+# Group-Based Dynamic Difficulty System
+# Scales event difficulty and boss spawn chances based on player groups
+difficulty:
+  enabled: true
+
+  # Player detection
+  scan_radius: 50.0               # Blocks to scan for nearby players
+  scan_interval: 100              # Ticks between scans (5 seconds)
+
+  # Multiplier bonuses
+  party_bonus_per_member: 0.3     # Bonus per party member
+  max_party_bonus: 1.5            # Maximum party bonus
+  proximity_bonus_per_player: 0.2 # Bonus per nearby non-party player
+  max_proximity_bonus: 1.0        # Maximum proximity bonus
+  wilderness_bonus: 0.5           # Bonus for being in wilderness (not town)
+  storm_proximity_bonus: 0.5      # Bonus for being near active storm
+  storm_proximity_radius: 300.0   # Distance to be "near" a storm
+
+  # Safe zones
+  respect_town_claims: true       # Towny/TAN claims reduce difficulty
+  town_claim_multiplier: 0.5      # Multiply final difficulty by this in towns
+
+  # Reward scaling
+  reward_scaling_factor: 2.5      # How much multiplier affects rewards
+  party_completion_bonus: 0.1     # 10% per party member
+  max_party_completion_bonus: 0.5 # 50% max
+
+  # Event type weights by threat level
+  # Multiplier ranges: LOW (1.0-1.49), MEDIUM (1.5-1.99), HIGH (2.0-2.74), EXTREME (2.75+)
+  weights:
+    low:
+      storm_surge: 60
+      storm_rift: 30
+      tempest_guardian: 10
+      storm_titan: 0
+      town_siege: 0
+    medium:
+      storm_surge: 40
+      storm_rift: 35
+      tempest_guardian: 20
+      storm_titan: 5
+      town_siege: 0
+    high:
+      storm_surge: 20
+      storm_rift: 30
+      tempest_guardian: 35
+      storm_titan: 10
+      town_siege: 5
+    extreme:
+      storm_surge: 10
+      storm_rift: 20
+      tempest_guardian: 40
+      storm_titan: 20
+      town_siege: 10
+
   # Event type configs
   types:
     STORM_SURGE:
