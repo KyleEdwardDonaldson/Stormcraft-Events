@@ -4,6 +4,7 @@ import dev.ked.stormcraft.events.StormcraftEventsPlugin;
 import dev.ked.stormcraft.events.config.ConfigManager;
 import dev.ked.stormcraft.events.difficulty.DifficultyCalculator;
 import dev.ked.stormcraft.events.difficulty.DifficultyMultiplier;
+import dev.ked.stormcraft.events.difficulty.GroupRewardCalculator;
 import dev.ked.stormcraft.events.difficulty.PlayerDensityTracker;
 import dev.ked.stormcraft.events.integration.*;
 import dev.ked.stormcraft.events.spawn.DensityTracker;
@@ -32,6 +33,7 @@ public class EventManager {
     private final DensityTracker densityTracker;
     private final PlayerDensityTracker playerDensityTracker;
     private final DifficultyCalculator difficultyCalculator;
+    private final GroupRewardCalculator rewardCalculator;
 
     // Active events tracking
     private final Map<UUID, Event> activeEvents = new ConcurrentHashMap<>();
@@ -55,6 +57,7 @@ public class EventManager {
         // Initialize difficulty system
         this.playerDensityTracker = new PlayerDensityTracker(plugin, config.getDifficultyScanRadius());
         this.difficultyCalculator = new DifficultyCalculator(plugin, playerDensityTracker, stormcraft);
+        this.rewardCalculator = new GroupRewardCalculator(plugin, config, essence, economy, playerDensityTracker);
         loadDifficultyConfig();
 
         this.spawner = new EventSpawner(plugin, config, stormcraft, mythicMobs,
@@ -205,15 +208,21 @@ public class EventManager {
      * Distribute rewards to participants.
      */
     private void distributeRewards(Event event, List<Player> participants) {
-        int essenceReward = config.getEssenceReward(event.getType());
+        // Use GroupRewardCalculator for scaled rewards if difficulty enabled
+        if (config.isDifficultyEnabled() && event.getDifficulty() != null) {
+            rewardCalculator.calculateAndDistributeRewards(event, participants);
+        } else {
+            // Fallback to simple reward distribution
+            int essenceReward = config.getEssenceReward(event.getType());
 
-        for (Player player : participants) {
-            // Award essence via economy
-            if (economy != null && essence != null && essence.isEnabled()) {
-                essence.awardEssence(player, essenceReward, economy);
+            for (Player player : participants) {
+                // Award essence via economy
+                if (economy != null && essence != null && essence.isEnabled()) {
+                    essence.awardEssence(player, essenceReward, economy);
+                }
+
+                player.sendMessage("§a+ " + essenceReward + " Essence");
             }
-
-            player.sendMessage("§a+ " + essenceReward + " Essence");
         }
     }
 
