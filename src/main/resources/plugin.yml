@@ -1,0 +1,40 @@
+name: StormcraftEvents
+version: '${project.version}'
+main: dev.ked.stormcraft.events.StormcraftEventsPlugin
+api-version: '1.21'
+author: KyleEdwardDonaldson
+description: Dynamic storm-themed events with density-based spawning and boss battles
+
+depend:
+  - Stormcraft
+
+softdepend:
+  - Vault
+  - MythicMobs
+  - Towny
+  - TownsAndNations
+  - StormcraftEssence
+
+commands:
+  stormevent:
+    description: Manage storm events
+    usage: /stormevent <start|stop|list|reload>
+    permission: stormcraft.events.admin
+    aliases: [sevent, sevents]
+
+permissions:
+  stormcraft.events.admin:
+    description: Access to all event commands
+    default: op
+
+  stormcraft.events.siege.exempt:
+    description: Exempt town from siege events
+    default: false
+
+  stormcraft.events.spawn:
+    description: Manually spawn events
+    default: op
+
+  stormcraft.events.notify:
+    description: Receive event notifications
+    default: true

@@ -1,0 +1,21 @@
+# Rewards Configuration
+# Configure essence and economy rewards for event participation
+
+rewards:
+  participation:
+    essence: 10                    # Essence per player who participated
+    money: 50                      # Vault economy reward
+
+  completion:
+    essence: 50
+    money: 200
+
+  bosses:
+    rewardType: "DAMAGE_SHARE"     # Split rewards based on damage dealt
+    totalEssencePool: 1000         # Total essence to distribute
+    minDamagePercent: 5.0          # Must deal 5% damage to get rewards
+
+  mvp:                             # Top damage dealer
+    essenceBonus: 100              # Extra essence for top contributor
+    moneyBonus: 500
+    broadcast: true

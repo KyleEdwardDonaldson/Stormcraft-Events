@@ -1,0 +1,48 @@
+# Towns Configuration
+# Configure town siege events (Towny/TownsAndNations integration)
+
+towns:
+  enabled: true
+  siegeSettings:
+    announceToTown: true
+    announceRadius: 500
+    defenseBonus: 1.2              # 20% bonus rewards for defending home town
+    allowNeutralHelp: true         # Non-town members can help defend
+
+  mobTypes:                        # What spawns during sieges
+    - ZOMBIE
+    - SKELETON
+    - CREEPER
+    - SPIDER
+    - WITCH
+
+  blockBreaking:
+    enabled: true                  # Allow mobs to break blocks
+    cooldown: 5                    # Seconds between block breaks per mob
+    breakableBlocks:               # What blocks can be broken
+      - WOODEN_DOOR
+      - OAK_DOOR
+      - SPRUCE_DOOR
+      - BIRCH_DOOR
+      - JUNGLE_DOOR
+      - ACACIA_DOOR
+      - DARK_OAK_DOOR
+      - IRON_DOOR
+      - WOODEN_TRAPDOOR
+      - IRON_TRAPDOOR
+      - CHEST
+      - BARREL
+      - FURNACE
+      - CRAFTING_TABLE
+    protectedBlocks:               # What blocks cannot be broken
+      - BEDROCK
+      - BARRIER
+      - OBSIDIAN
+      - ENCHANTING_TABLE
+      - ANVIL
+    explosionDamage: true          # Creepers can damage blocks
+
+  spawnLocations:                  # Where mobs spawn around town
+    minDistance: 30                # Not too close to spawn
+    maxDistance: 80                # Not too far
+    spawnPoints: 4                 # 4 spawn points around town

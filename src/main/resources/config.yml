@@ -1,0 +1,88 @@
+# Stormcraft Events Configuration
+# Dynamic event system that spawns storm-themed objectives and encounters
+
+events:
+  # Global settings
+  globalCooldown: 60              # Seconds between any events
+  announceRadius: 900             # Blocks to announce events (nearby storm = within 900 blocks)
+  useActionBar: true              # Use action bar for event updates
+  useBossBar: true                # Use boss bar for boss health
+  chatAnnouncements: true         # Broadcast boss spawn/death in chat
+
+  # Storm zone spawn weights
+  spawnZones:
+    stormCore:
+      minDistance: 0
+      maxDistance: 50
+      weight: 60
+    stormPeriphery:
+      minDistance: 50
+      maxDistance: 150
+      weight: 30
+    stormInfluence:
+      minDistance: 150
+      maxDistance: 300
+      weight: 10
+
+  # Density-based spawning
+  density:
+    checkInterval: 30             # Seconds between density checks
+    baseChance: 0.05              # 5% base spawn chance
+    playerMultiplier: 0.1         # Additional chance per player (logarithmic)
+    maxChance: 0.5                # Max 50% spawn chance
+
+  # Event type configs
+  types:
+    STORM_SURGE:
+      enabled: true
+      weight: 30
+      minPlayers: 1
+      requiresStorm: true
+      cooldown: 300                # 5 minutes
+      duration: 120                # 2 minutes
+      crystalCount: 5
+      essenceReward: 50
+
+    TEMPEST_GUARDIAN:
+      enabled: true
+      weight: 15
+      minPlayers: 3
+      requiresStorm: true
+      cooldown: 1800               # 30 minutes
+      mythicMobType: "TempestGuardian"  # MythicMobs mob name
+      essenceReward: 200
+
+    STORM_RIFT:
+      enabled: true
+      weight: 20
+      minPlayers: 2
+      requiresStorm: true
+      cooldown: 900                # 15 minutes
+      duration: 300                # 5 minutes
+      waveCount: 5
+      mobsPerWave: 10
+      essenceReward: 150
+
+    STORM_TITAN:
+      enabled: true
+      weight: 5
+      minPlayers: 10
+      requiresStorm: true
+      stormIntensityMin: 80
+      cooldown: 7200               # 2 hours
+      mythicMobType: "StormTitan"
+      essenceReward: 1000
+
+    TOWN_SIEGE:
+      enabled: true
+      weight: 10
+      minPlayers: 2                # Must be 2+ players in/near town
+      requiresStorm: true          # Storm must be nearby
+      stormProximity: 900          # Storm within 900 blocks (nearby storm)
+      baseChance: 0.02             # 2% chance per check
+      cooldown: 3600               # 1 hour per town
+      duration: 600                # 10 minutes
+      waveCount: 3
+      mobsPerWave: 15
+      allowOptOut: true            # Towns can disable via permission
+      mobsCanBreakBlocks: true     # Allow mobs to break blocks during siege
