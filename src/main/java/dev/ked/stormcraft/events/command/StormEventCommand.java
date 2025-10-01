@@ -95,7 +95,9 @@ public class StormEventCommand implements CommandExecutor, TabCompleter {
         }
 
         config.loadConfigs();
+        eventManager.reloadDifficultyConfig();
         sender.sendMessage(Component.text("§a[Events] Configuration reloaded"));
+        sender.sendMessage(Component.text("§7Difficulty system reloaded with new weights"));
     }
 
     private void handleInfo(CommandSender sender) {

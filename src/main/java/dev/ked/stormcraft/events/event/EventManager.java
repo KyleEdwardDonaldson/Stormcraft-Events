@@ -56,7 +56,7 @@ public class EventManager {
 
         // Initialize difficulty system
         this.playerDensityTracker = new PlayerDensityTracker(plugin, config.getDifficultyScanRadius());
-        this.difficultyCalculator = new DifficultyCalculator(plugin, playerDensityTracker, stormcraft);
+        this.difficultyCalculator = new DifficultyCalculator(plugin, config, playerDensityTracker, stormcraft);
         this.rewardCalculator = new GroupRewardCalculator(plugin, config, essence, economy, playerDensityTracker);
         loadDifficultyConfig();
 
@@ -83,6 +83,19 @@ public class EventManager {
         difficultyCalculator.setTownClaimMultiplier(config.getTownClaimMultiplier());
 
         plugin.getLogger().info("Difficulty system initialized");
+    }
+
+    /**
+     * Reload difficulty configuration (for hot-reload).
+     */
+    public void reloadDifficultyConfig() {
+        if (!config.isDifficultyEnabled()) {
+            return;
+        }
+
+        loadDifficultyConfig();
+        difficultyCalculator.loadWeightsFromConfig();
+        plugin.getLogger().info("Difficulty configuration reloaded");
     }
 
     /**

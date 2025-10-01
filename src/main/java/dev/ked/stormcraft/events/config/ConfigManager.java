@@ -227,6 +227,59 @@ public class ConfigManager {
     }
 
     /**
+     * Get event weight for a specific threat level and event type.
+     * Returns the configured weight or a default value.
+     */
+    public int getDifficultyEventWeight(String threatLevel, EventType eventType) {
+        String path = "difficulty.weights." + threatLevel.toLowerCase() + "." +
+                     eventTypeToConfigKey(eventType);
+        return config.getInt(path, getDefaultWeight(threatLevel, eventType));
+    }
+
+    /**
+     * Convert EventType to config key (e.g., STORM_SURGE -> storm_surge).
+     */
+    private String eventTypeToConfigKey(EventType type) {
+        return type.name().toLowerCase();
+    }
+
+    /**
+     * Get default weights if not configured.
+     */
+    private int getDefaultWeight(String threatLevel, EventType type) {
+        return switch (threatLevel.toLowerCase()) {
+            case "low" -> switch (type) {
+                case STORM_SURGE -> 60;
+                case STORM_RIFT -> 30;
+                case TEMPEST_GUARDIAN -> 10;
+                case STORM_TITAN, TOWN_SIEGE -> 0;
+            };
+            case "medium" -> switch (type) {
+                case STORM_SURGE -> 40;
+                case STORM_RIFT -> 35;
+                case TEMPEST_GUARDIAN -> 20;
+                case STORM_TITAN -> 5;
+                case TOWN_SIEGE -> 0;
+            };
+            case "high" -> switch (type) {
+                case STORM_SURGE -> 20;
+                case STORM_RIFT -> 30;
+                case TEMPEST_GUARDIAN -> 35;
+                case STORM_TITAN -> 10;
+                case TOWN_SIEGE -> 5;
+            };
+            case "extreme" -> switch (type) {
+                case STORM_SURGE -> 10;
+                case STORM_RIFT -> 20;
+                case TEMPEST_GUARDIAN -> 40;
+                case STORM_TITAN -> 20;
+                case TOWN_SIEGE -> 10;
+            };
+            default -> 10;
+        };
+    }
+
+    /**
      * Get raw config for direct access.
      */
     public FileConfiguration getConfig() {

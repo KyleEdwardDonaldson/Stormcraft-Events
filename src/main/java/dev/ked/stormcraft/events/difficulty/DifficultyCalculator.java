@@ -1,5 +1,6 @@
 package dev.ked.stormcraft.events.difficulty;
 
+import dev.ked.stormcraft.events.config.ConfigManager;
 import dev.ked.stormcraft.events.event.EventType;
 import dev.ked.stormcraft.events.integration.StormcraftIntegration;
 import dev.ked.stormcraft.model.TravelingStorm;
@@ -18,6 +19,7 @@ import java.util.Random;
  */
 public class DifficultyCalculator {
     private final JavaPlugin plugin;
+    private final ConfigManager config;
     private final PlayerDensityTracker densityTracker;
     private final StormcraftIntegration stormcraftIntegration;
     private final Random random = new Random();
@@ -35,12 +37,14 @@ public class DifficultyCalculator {
     // Event type weights by threat level
     private final Map<ThreatLevel, Map<EventType, Integer>> eventWeights = new HashMap<>();
 
-    public DifficultyCalculator(JavaPlugin plugin, PlayerDensityTracker densityTracker,
+    public DifficultyCalculator(JavaPlugin plugin, ConfigManager config,
+                               PlayerDensityTracker densityTracker,
                                StormcraftIntegration stormcraftIntegration) {
         this.plugin = plugin;
+        this.config = config;
         this.densityTracker = densityTracker;
         this.stormcraftIntegration = stormcraftIntegration;
-        initializeDefaultWeights();
+        loadWeightsFromConfig();
     }
 
     /**
@@ -205,44 +209,24 @@ public class DifficultyCalculator {
     }
 
     /**
-     * Initialize default event weights by threat level.
+     * Load event weights from configuration.
+     * Can be called again to reload weights without restarting.
      */
-    private void initializeDefaultWeights() {
-        // LOW threat (1.0 - 1.49x)
-        Map<EventType, Integer> lowWeights = new HashMap<>();
-        lowWeights.put(EventType.STORM_SURGE, 60);
-        lowWeights.put(EventType.STORM_RIFT, 30);
-        lowWeights.put(EventType.TEMPEST_GUARDIAN, 10);
-        lowWeights.put(EventType.STORM_TITAN, 0);
-        lowWeights.put(EventType.TOWN_SIEGE, 0);
-        eventWeights.put(ThreatLevel.LOW, lowWeights);
+    public void loadWeightsFromConfig() {
+        eventWeights.clear();
 
-        // MEDIUM threat (1.5 - 1.99x)
-        Map<EventType, Integer> mediumWeights = new HashMap<>();
-        mediumWeights.put(EventType.STORM_SURGE, 40);
-        mediumWeights.put(EventType.STORM_RIFT, 35);
-        mediumWeights.put(EventType.TEMPEST_GUARDIAN, 20);
-        mediumWeights.put(EventType.STORM_TITAN, 5);
-        mediumWeights.put(EventType.TOWN_SIEGE, 0);
-        eventWeights.put(ThreatLevel.MEDIUM, mediumWeights);
+        for (ThreatLevel level : ThreatLevel.values()) {
+            Map<EventType, Integer> weights = new HashMap<>();
 
-        // HIGH threat (2.0 - 2.74x)
-        Map<EventType, Integer> highWeights = new HashMap<>();
-        highWeights.put(EventType.STORM_SURGE, 20);
-        highWeights.put(EventType.STORM_RIFT, 30);
-        highWeights.put(EventType.TEMPEST_GUARDIAN, 35);
-        highWeights.put(EventType.STORM_TITAN, 10);
-        highWeights.put(EventType.TOWN_SIEGE, 5);
-        eventWeights.put(ThreatLevel.HIGH, highWeights);
+            for (EventType type : EventType.values()) {
+                int weight = config.getDifficultyEventWeight(level.name(), type);
+                weights.put(type, weight);
+            }
 
-        // EXTREME threat (2.75+x)
-        Map<EventType, Integer> extremeWeights = new HashMap<>();
-        extremeWeights.put(EventType.STORM_SURGE, 10);
-        extremeWeights.put(EventType.STORM_RIFT, 20);
-        extremeWeights.put(EventType.TEMPEST_GUARDIAN, 40);
-        extremeWeights.put(EventType.STORM_TITAN, 20);
-        extremeWeights.put(EventType.TOWN_SIEGE, 10);
-        eventWeights.put(ThreatLevel.EXTREME, extremeWeights);
+            eventWeights.put(level, weights);
+        }
+
+        plugin.getLogger().info("Loaded difficulty event weights from config");
     }
 
     // Configuration setters
