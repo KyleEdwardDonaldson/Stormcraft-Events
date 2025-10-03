@@ -1,6 +1,6 @@
 # Stormcraft-Events
 
-A dynamic event system for Minecraft Paper 1.21.3 that spawns storm-themed objectives and encounters based on player density, storm activity, and town presence.
+A dynamic event system for Minecraft Paper 1.21.3 - 1.21.9 that spawns storm-themed objectives and encounters based on player density, storm activity, and town presence.
 
 ## Features
 
@@ -35,7 +35,7 @@ Events spawn in three zones around active storms:
 ## Requirements
 
 - **Java**: 21+
-- **Minecraft**: Paper 1.21.3
+- **Minecraft**: Paper 1.21.3 - 1.21.9
 - **Dependencies**:
   - Stormcraft (required)
   - MythicMobs (optional, for boss events)
@@ -223,4 +223,4 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 ---
 
 **Version**: 0.1.0
-**Last Updated**: 2025-10-01
+**Last Updated**: 2025-10-02
